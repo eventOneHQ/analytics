@@ -3,11 +3,16 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import logger from 'morgan'
 
+import swaggerUi from 'swagger-ui-express'
+import YAML from 'yamljs'
+
 /**
  * @param app Express app
  * @category Config
  */
 export const configureExpress = (app: any) => {
+  const swaggerDocument = YAML.load('./openapi.yaml')
+
   app.use(logger('dev'))
 
   // Allow CORS
@@ -21,4 +26,6 @@ export const configureExpress = (app: any) => {
     })
   )
   app.use(bodyParser.json())
+
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 }

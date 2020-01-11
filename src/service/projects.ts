@@ -38,6 +38,10 @@ export const createProject = async (params: IProject) => {
  * @category ProjectService
  */
 export const canWrite = async (projectId: string, writeKey: string) => {
+  if (!writeKey) {
+    throw createError(401, 'The API Key is invalid.')
+  }
+
   const isValidId = Types.ObjectId.isValid(projectId)
 
   if (!isValidId) {
@@ -64,6 +68,10 @@ export const canWrite = async (projectId: string, writeKey: string) => {
  * @category ProjectService
  */
 export const canRead = async (projectId: string, key: string) => {
+  if (!key) {
+    throw createError(401, 'The API Key is invalid.')
+  }
+
   const isValidId = Types.ObjectId.isValid(projectId)
 
   if (!isValidId) {

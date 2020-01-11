@@ -5,7 +5,7 @@
   "author": "eventOne, Inc. <team@event1.io>",
   "scripts": {
     "start": "node ./build/src/bin/www",
-    "dev": "DEBUG=analytics:* nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/bin/www.ts",
+    "dev": "DEBUG=analytics:* nodemon --watch 'src/**/*.ts' --watch 'openapi.yaml' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/bin/www.ts",
     "build": "tsc",
     "docs": "typedoc"
   },
@@ -18,8 +18,10 @@
     "express": "^4.17.1",
     "http-errors": "^1.7.3",
     "mongoose": "^5.8.7",
+    "morgan": "~1.9.1",
+    "swagger-ui-express": "^4.1.2",
     "tslib": "^1.10.0",
-    "morgan": "~1.9.1"
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.2",
@@ -30,6 +32,7 @@
     "@types/mongoose": "^5.5.41",
     "@types/node": "^13.1.6",
     "nodemon": "^2.0.2",
+    "redoc-cli": "^0.9.5",
     "ts-node": "^8.6.1",
     "typedoc": "^0.15.8",
     "typescript": "^3.7.4"
