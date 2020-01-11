@@ -21,7 +21,7 @@
 
 ## 🎈 Usage <a name="usage"></a>
 
-Check out the API docs.
+Check out the [API docs](https://oss.eventone.page/analytics/api).
 
 ## ✍️ Authors <a name = "authors"></a>
 
