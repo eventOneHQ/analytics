@@ -6,6 +6,9 @@ info:
 servers:
   - url: https://e1-analytics.herokuapp.com/1.0
   - url: http://localhost:3000/1.0
+tags:
+  - name: Events
+    description: Events are the individual data points collected by the API. These events are stored in collections.
 components:
   securitySchemes:
     WriteKeyHeader:
@@ -92,6 +95,8 @@ paths:
       security:
         - WriteKeyHeader: []
         - WriteKeyQuery: []
+      tags:
+        - Events
       parameters:
         - $ref: '#/components/parameters/ProjectIdParam'
         - $ref: '#/components/parameters/CollectionNameParam'
@@ -119,6 +124,8 @@ paths:
       security:
         - WriteKeyHeader: []
         - WriteKeyQuery: []
+      tags:
+        - Events
       parameters:
         - $ref: '#/components/parameters/ProjectIdParam'
         - $ref: '#/components/parameters/CollectionNameParam'
