@@ -48,15 +48,17 @@ routerEvents.get(
       const redirect = req.query['redirect']
       const dataBase64 = req.query['data']
 
-      let data
-      try {
-        const dataBuff = Buffer.from(dataBase64, 'base64')
-        const dataUrlEncoded = dataBuff.toString('ascii')
-        const dataText = decodeURIComponent(dataUrlEncoded)
+      let data: any = {}
+      if (dataBase64) {
+        try {
+          const dataBuff = Buffer.from(dataBase64, 'base64')
+          const dataUrlEncoded = dataBuff.toString('ascii')
+          const dataText = decodeURIComponent(dataUrlEncoded)
 
-        data = JSON.parse(dataText)
-      } catch (err) {
-        return next(createError(400, 'Failed to parse data.'))
+          data = JSON.parse(dataText)
+        } catch (err) {
+          return next(createError(400, 'Failed to parse data.'))
+        }
       }
 
       const responsse = await recordEvent(
