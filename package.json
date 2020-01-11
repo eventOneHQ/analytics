@@ -7,7 +7,8 @@
     "start": "node ./build/src/bin/www",
     "dev": "DEBUG=analytics:* nodemon --watch 'src/**/*.ts' --watch 'openapi.yaml' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/bin/www.ts",
     "build": "tsc",
-    "docs": "typedoc"
+    "docs": "typedoc && npm run redoc",
+    "redoc": "redoc-cli bundle openapi.yaml && mv redoc-static.html docs/api.html"
   },
   "dependencies": {
     "body-parser": "^1.19.0",
