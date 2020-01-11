@@ -1,0 +1,11 @@
+{
+  "name": "Analytics",
+  "description": "A simple analytics API.",
+  "repository": "https://github.com/eventOneHQ/analytics",
+  "keywords": ["node", "express", "analytics", "mongodb"],
+  "env": {
+    "MONGODB_URI": {
+      "description": "MongoDB connection string"
+    }
+  }
+}
