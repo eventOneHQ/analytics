@@ -6,6 +6,10 @@
   "env": {
     "MONGODB_URI": {
       "description": "MongoDB connection string"
+    },
+    "ROOT_KEY": {
+      "description": "Instance wide root key for managing projects",
+      "generator": "secret"
     }
   }
 }
