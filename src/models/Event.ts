@@ -1,7 +1,10 @@
 import { Schema, model, Model, Document } from 'mongoose'
 
+const { ObjectId, Mixed } = Schema.Types
+
 export interface IEvent {
   collectionName: string
+  collectionId?: string
   projectId: string
   data?: any
   method?: string
@@ -16,13 +19,18 @@ const EventSchema: Schema = new Schema(
       type: String,
       required: true
     },
+    collectionId: {
+      type: ObjectId,
+      ref: 'Collection',
+      required: true
+    },
     projectId: {
-      type: Schema.Types.ObjectId,
+      type: ObjectId,
       ref: 'Project',
       required: true
     },
     data: {
-      type: Schema.Types.Mixed
+      type: Mixed
     },
     method: {
       type: String,
