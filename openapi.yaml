@@ -9,8 +9,15 @@ servers:
 tags:
   - name: Events
     description: Events are the individual data points collected by the API. These events are stored in collections.
+  - name: Projects
+    description: Projects
 components:
   securitySchemes:
+    RootKey:
+      type: apiKey
+      in: header
+      name: X-Root-Key
+      description: The instance root key is used for managing projects.
     WriteKeyHeader:
       type: apiKey
       in: header
@@ -19,6 +26,44 @@ components:
       type: apiKey
       in: query
       name: api_key
+
+  schemas:
+    CreateProjectScema:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: Specifies the name of the project
+          example: 'Test Project'
+    ProjectScema:
+      type: object
+      required:
+        - name
+      properties:
+        _id:
+          type: string
+          example: 5e19426836270c1b1e7b03f2
+        name:
+          type: string
+          description: Specifies the name of the project
+          example: 'Test Project'
+        masterKey:
+          type: string
+          example: <MASTER_API_KEY>
+        readKey:
+          type: string
+          example: <READ_API_KEY>
+        writeKey:
+          type: string
+          example: <WRITE_API_KEY>
+        createdAt:
+          type: string
+          example: '2020-01-11T13:38:05.006Z'
+        updatedAt:
+          type: string
+          example: '2020-01-11T21:18:56.035Z'
 
   responses:
     BadRequestError:
@@ -70,6 +115,20 @@ components:
               created:
                 type: boolean
                 default: true
+    Project:
+      description: A project object
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ProjectScema'
+    Projects:
+      description: A project object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/ProjectScema'
   parameters:
     ProjectIdParam:
       in: path
@@ -78,7 +137,7 @@ components:
         type: string
         example: 5e19426836270c1b1e7b03f2
       required: true
-      description: ID of the project to record the event in.
+      description: ID of the project.
     CollectionNameParam:
       in: path
       name: collectionName
@@ -142,6 +201,84 @@ paths:
       responses:
         '201':
           $ref: '#/components/responses/EventCreated'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /projects:
+    get:
+      summary: Get projects
+      security:
+        - RootKey: []
+      tags:
+        - Projects
+      responses:
+        '200':
+          $ref: '#/components/responses/Projects'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+    post:
+      summary: Create project
+      security:
+        - RootKey: []
+      tags:
+        - Projects
+      requestBody:
+        description: New project
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectScema'
+      responses:
+        '200':
+          $ref: '#/components/responses/Project'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /projects/{projectId}:
+    get:
+      summary: Get project
+      security:
+        - RootKey: []
+      tags:
+        - Projects
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/Project'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    post:
+      summary: Update project
+      security:
+        - RootKey: []
+      tags:
+        - Projects
+      requestBody:
+        description: Updated project
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProjectScema'
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      responses:
+        '200':
+          $ref: '#/components/responses/Project'
         '400':
           $ref: '#/components/responses/BadRequestError'
         '401':

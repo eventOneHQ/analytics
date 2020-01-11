@@ -90,3 +90,64 @@ export const canRead = async (projectId: string, key: string) => {
 
   return true
 }
+
+/**
+ * Get a project
+ * @param projectId ID of the project to get
+ *
+ * @category ProjectService
+ */
+export const getProject = async (projectId: string) => {
+  if (!projectId) {
+    throw createError(400, 'Project ID not specified.')
+  }
+
+  const project = await Project.findById(projectId)
+
+  if (!project) {
+    throw createError(404, 'Resource not found.')
+  }
+
+  return project
+}
+
+/**
+ * Get all projects
+ *
+ * @category ProjectService
+ */
+export const getProjects = async () => {
+  const projects = await Project.find()
+
+  return projects
+}
+
+/**
+ * Update a project
+ * @param projectId ID of the project to update
+ * @param project Project parameters
+ *
+ * @category ProjectService
+ */
+export const updateProject = async (projectId: string, project: IProject) => {
+  if (!projectId) {
+    throw createError(400, 'Project ID not specified.')
+  }
+  if (!project) {
+    throw createError(400, 'Project body not specified.')
+  }
+
+  const newProject = await Project.findByIdAndUpdate(
+    projectId,
+    {
+      name: project.name
+    },
+    { new: true }
+  )
+
+  if (!newProject) {
+    throw createError(404, 'Resource not found.')
+  }
+
+  return newProject
+}
