@@ -6,6 +6,7 @@ import {
   updateProject
 } from '../../service/projects'
 import { routerEvents } from './events.router'
+import { routerQuery } from './queries.router'
 import { requireRootAuth } from '../..//lib/middleware/auth'
 
 /**
@@ -14,6 +15,8 @@ import { requireRootAuth } from '../..//lib/middleware/auth'
 export const routerPojects: Router = express.Router()
 
 routerPojects.use('/:projectId/events', routerEvents)
+
+routerPojects.use('/:projectId/queries', routerQuery)
 
 routerPojects.post(
   '/',
