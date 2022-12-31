@@ -17,7 +17,7 @@
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
-    "flat": "^5.0.0",
+    "flat": "^5.0.1",
     "http-errors": "^1.7.3",
     "mongoose": "^5.8.7",
     "morgan": "~1.9.1",
