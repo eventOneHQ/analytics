@@ -53,21 +53,23 @@ function parseTimeframe(timeframe?: Timeframe, timezone?: string): { start: Date
   // this_N_unit or last_N_unit or previous_N_unit
   const relMatch = tf.match(/^(this|last|previous)_(\d+)_(minute|minutes|hour|hours|day|days|week|weeks|month|months|year|years)$/)
   if (relMatch) {
-    const direction = relMatch[1]
     const n = parseInt(relMatch[2], 10)
     const unit = relMatch[3].replace(/s$/, '') // normalize plural
 
-    const msMap: Record<string, number> = {
-      minute: 60 * 1000,
-      hour: 60 * 60 * 1000,
-      day: 24 * 60 * 60 * 1000,
-      week: 7 * 24 * 60 * 60 * 1000,
-      month: 30 * 24 * 60 * 60 * 1000,
-      year: 365 * 24 * 60 * 60 * 1000
+    const start = new Date(now)
+    if (unit === 'month') {
+      start.setMonth(start.getMonth() - n)
+    } else if (unit === 'year') {
+      start.setFullYear(start.getFullYear() - n)
+    } else {
+      const msMap: Record<string, number> = {
+        minute: 60 * 1000,
+        hour: 60 * 60 * 1000,
+        day: 24 * 60 * 60 * 1000,
+        week: 7 * 24 * 60 * 60 * 1000
+      }
+      start.setTime(now.getTime() - n * (msMap[unit] || 24 * 60 * 60 * 1000))
     }
-
-    const ms = msMap[unit] || 24 * 60 * 60 * 1000
-    const start = new Date(now.getTime() - n * ms)
     return { start, end: now }
   }
 
@@ -128,17 +130,6 @@ const intervalToUnit = (interval: Interval): string => {
   return map[interval] || 'day'
 }
 
-const intervalToMs = (interval: Interval): number => {
-  const map: Record<Interval, number> = {
-    minutely: 60 * 1000,
-    hourly: 60 * 60 * 1000,
-    daily: 24 * 60 * 60 * 1000,
-    weekly: 7 * 24 * 60 * 60 * 1000,
-    monthly: 30 * 24 * 60 * 60 * 1000,
-    yearly: 365 * 24 * 60 * 60 * 1000
-  }
-  return map[interval] || 24 * 60 * 60 * 1000
-}
 
 // ---------------------------------------------------------------------------
 // Main query runner
@@ -248,8 +239,10 @@ export const runQuery = async (projectId: string, query: IQuery): Promise<any> =
     projectStage['timeframe'] = {
       start: '$_id.time_bucket',
       end: {
-        $toDate: {
-          $add: [{ $toLong: '$_id.time_bucket' }, intervalToMs(query.interval!)]
+        $dateAdd: {
+          startDate: '$_id.time_bucket',
+          unit: intervalToUnit(query.interval!),
+          amount: 1
         }
       }
     }
