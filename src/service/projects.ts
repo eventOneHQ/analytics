@@ -84,7 +84,7 @@ export const canRead = async (projectId: string, key: string) => {
     throw createError(404, 'Resource not found.')
   }
 
-  if (project.readKey !== key || project.masterKey !== key) {
+  if (project.readKey !== key && project.masterKey !== key) {
     throw createError(401, 'The API Key is invalid.')
   }
 

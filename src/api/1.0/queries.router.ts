@@ -1,24 +1,46 @@
 import express, { Request, Response } from 'express'
-import createError from 'http-errors'
-import { analyzeCount } from '../../service/analysis'
+import { runQuery } from '../../service/analysis'
+import { readKeyAuth } from '../../lib/middleware/auth'
+import { IQuery } from '../../interfaces/Query'
 
 /**
  * @category v1ApiRouter
  */
 export const routerQuery = express.Router({ mergeParams: true })
 
-const findAccessKey = (req: Request) => {
-  return req.headers['authorization'] || req.query['api_key']
-}
-
-routerQuery.post('/count', async (req: Request, res: Response, next) => {
+routerQuery.post('/run', readKeyAuth, async (req: Request, res: Response, next) => {
   try {
-    const projectId = req.params['projectId']
-    const accessKey = findAccessKey(req)
+    const projectId = req.params['projectId'] as string
+    const query: IQuery = req.body
 
-    const results = await analyzeCount(accessKey, projectId, req.body)
+    const results = await runQuery(projectId, query)
 
-    return res.status(201).json(results)
+    return res.status(200).json(results)
+  } catch (err) {
+    return next(err)
+  }
+})
+
+routerQuery.get('/run', readKeyAuth, async (req: Request, res: Response, next) => {
+  try {
+    const projectId = req.params['projectId'] as string
+    let query: IQuery
+
+    const queryParam = req.query['query'] as string
+    if (queryParam) {
+      try {
+        query = JSON.parse(queryParam)
+      } catch {
+        const createError = (await import('http-errors')).default
+        return next(createError(400, 'Failed to parse query parameter.'))
+      }
+    } else {
+      query = req.query as any
+    }
+
+    const results = await runQuery(projectId, query)
+
+    return res.status(200).json(results)
   } catch (err) {
     return next(err)
   }

@@ -1,7 +1,6 @@
-import bodyParser from 'body-parser'
 import cors from 'cors'
-import cookieParser from 'cookie-parser'
 import logger from 'morgan'
+import express from 'express'
 
 import swaggerUi from 'swagger-ui-express'
 import YAML from 'yamljs'
@@ -18,14 +17,8 @@ export const configureExpress = (app: any) => {
   // Allow CORS
   app.use(cors())
 
-  app.use(cookieParser())
-  // Use body parser so we can get info from POST and/or URL parameters
-  app.use(
-    bodyParser.urlencoded({
-      extended: true
-    })
-  )
-  app.use(bodyParser.json())
+  app.use(express.urlencoded({ extended: true }))
+  app.use(express.json())
 
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
 }

@@ -7,7 +7,8 @@ import {
 } from '../../service/projects'
 import { routerEvents } from './events.router'
 import { routerQuery } from './queries.router'
-import { requireRootAuth } from '../..//lib/middleware/auth'
+import { routerCollections } from './collections.router'
+import { requireRootAuth } from '../../lib/middleware/auth'
 
 /**
  * @category v1ApiRouter
@@ -17,6 +18,8 @@ export const routerPojects: Router = express.Router()
 routerPojects.use('/:projectId/events', routerEvents)
 
 routerPojects.use('/:projectId/queries', routerQuery)
+
+routerPojects.use('/:projectId/collections', routerCollections)
 
 routerPojects.post(
   '/',
@@ -50,7 +53,7 @@ routerPojects.get(
   requireRootAuth,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const project = await getProject(req.params.projectId)
+      const project = await getProject(req.params.projectId as string)
       return res.status(200).json(project)
     } catch (err) {
       return next(err)
@@ -63,7 +66,7 @@ routerPojects.post(
   requireRootAuth,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const project = await updateProject(req.params.projectId, req.body)
+      const project = await updateProject(req.params.projectId as string, req.body)
       return res.status(200).json(project)
     } catch (err) {
       return next(err)
