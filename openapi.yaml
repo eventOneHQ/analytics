@@ -11,6 +11,10 @@ tags:
     description: Events are the individual data points collected by the API. These events are stored in collections.
   - name: Projects
     description: Projects
+  - name: Queries
+    description: Keen.io-compatible analytics queries
+  - name: Collections
+    description: Event collection management
 components:
   securitySchemes:
     RootKey:
@@ -23,6 +27,14 @@ components:
       in: header
       name: Authorization
     WriteKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+    ReadKeyHeader:
+      type: apiKey
+      in: header
+      name: Authorization
+    ReadKeyQuery:
       type: apiKey
       in: query
       name: api_key
@@ -64,6 +76,75 @@ components:
         updatedAt:
           type: string
           example: '2020-01-11T21:18:56.035Z'
+    QuerySchema:
+      type: object
+      required:
+        - analysis_type
+        - event_collection
+      properties:
+        analysis_type:
+          type: string
+          enum: [count, count_unique, sum, average, minimum, maximum, median, percentile, select_unique, extraction]
+        event_collection:
+          type: string
+          example: page_views
+        target_property:
+          type: string
+          example: revenue
+        percentile:
+          type: number
+          example: 95
+        timeframe:
+          oneOf:
+            - type: string
+              example: this_14_days
+            - type: object
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+        interval:
+          type: string
+          enum: [minutely, hourly, daily, weekly, monthly, yearly]
+        filters:
+          type: array
+          items:
+            type: object
+        group_by:
+          oneOf:
+            - type: string
+            - type: array
+              items:
+                type: string
+        limit:
+          type: integer
+    QueryResultSchema:
+      type: object
+      properties:
+        result:
+          oneOf:
+            - type: number
+            - type: array
+              items:
+                type: object
+    CollectionSchema:
+      type: object
+      properties:
+        name:
+          type: string
+        eventCount:
+          type: number
+        properties:
+          type: object
+          additionalProperties:
+            type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
 
   responses:
     BadRequestError:
@@ -281,6 +362,117 @@ paths:
           $ref: '#/components/responses/Project'
         '400':
           $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /projects/{projectId}/queries/run:
+    post:
+      summary: Run a Keen-compatible query
+      security:
+        - ReadKeyHeader: []
+        - ReadKeyQuery: []
+      tags:
+        - Queries
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuerySchema'
+      responses:
+        '200':
+          description: Query result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResultSchema'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+    get:
+      summary: Run a Keen-compatible query (GET)
+      security:
+        - ReadKeyHeader: []
+        - ReadKeyQuery: []
+      tags:
+        - Queries
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+        - in: query
+          name: query
+          schema:
+            type: string
+          description: JSON-encoded IQuery object
+      responses:
+        '200':
+          description: Query result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QueryResultSchema'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /projects/{projectId}/collections:
+    get:
+      summary: List all collections for a project
+      security:
+        - ReadKeyHeader: []
+        - ReadKeyQuery: []
+      tags:
+        - Collections
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+      responses:
+        '200':
+          description: Array of collections
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CollectionSchema'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+  /projects/{projectId}/collections/{collectionName}/properties:
+    get:
+      summary: Get property names and types for a collection
+      security:
+        - ReadKeyHeader: []
+        - ReadKeyQuery: []
+      tags:
+        - Collections
+      parameters:
+        - $ref: '#/components/parameters/ProjectIdParam'
+        - $ref: '#/components/parameters/CollectionNameParam'
+      responses:
+        '200':
+          description: Collection properties
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  properties:
+                    type: object
+                    additionalProperties:
+                      type: string
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '404':

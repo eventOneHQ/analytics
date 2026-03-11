@@ -1,46 +1,55 @@
-import { Schema, model, Model, Document } from 'mongoose'
+import { Schema, model, Model, Document, Types } from 'mongoose'
+import { config } from '../config/config'
 
-const { ObjectId, Mixed } = Schema.Types
+export interface IEventMetadata {
+  projectId: Types.ObjectId
+  collectionName: string
+  method: 'post' | 'get' | 'beacon'
+}
 
 export interface IEvent {
-  collectionName: string
-  collectionId?: string
-  projectId: string
+  timestamp: Date
+  metadata: IEventMetadata
   data?: any
-  method?: string
-  redirect?: string
 }
 
 export interface IEventModel extends IEvent, Document {}
 
 const EventSchema: Schema = new Schema(
   {
-    collectionName: {
-      type: String,
-      required: true
+    timestamp: {
+      type: Date,
+      required: true,
+      default: () => new Date()
     },
-    collectionId: {
-      type: ObjectId,
-      ref: 'Collection',
-      required: true
-    },
-    projectId: {
-      type: ObjectId,
-      ref: 'Project',
-      required: true
+    metadata: {
+      projectId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Project',
+        required: true
+      },
+      collectionName: {
+        type: String,
+        required: true
+      },
+      method: {
+        type: String,
+        default: 'post',
+        enum: ['post', 'get', 'beacon']
+      }
     },
     data: {
-      type: Mixed
-    },
-    method: {
-      type: String,
-      default: 'post',
-      enum: ['post', 'get', 'beacon']
-    },
-    redirect: String
+      type: Schema.Types.Mixed
+    }
   },
   {
-    timestamps: true
+    timeseries: {
+      timeField: 'timestamp',
+      metaField: 'metadata',
+      granularity: 'seconds'
+    },
+    expireAfterSeconds: config.eventTtlDays * 24 * 60 * 60,
+    autoCreate: true
   }
 )
 

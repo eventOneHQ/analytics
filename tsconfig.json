@@ -1,26 +1,17 @@
 {
   "compilerOptions": {
+    "target": "ES2022",
     "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "outDir": "build",
     "strict": true,
     "esModuleInterop": true,
-    "baseUrl": "./",
-    "outDir": "build",
-    "removeComments": true,
-    "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "target": "es6",
+    "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "noImplicitAny": false,
-    "types": ["node"],
-    "typeRoots": ["node_modules/@types"]
+    "skipLibCheck": true,
+    "noImplicitAny": false
   },
-  "include": ["./src/**/*"],
-  // "exclude": [],
-  "typedocOptions": {
-      "mode": "file",
-      "out": "docs",
-      "excludeNotExported": true
-  }
+  "include": ["./src/**/*"]
 }

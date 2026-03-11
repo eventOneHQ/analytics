@@ -8,20 +8,20 @@ import { recordEvent } from '../../service/events'
  */
 export const routerEvents = express.Router({ mergeParams: true })
 
-const findAccessKey = (req: Request) => {
-  return req.headers['authorization'] || req.query['api_key']
+const findAccessKey = (req: Request): string => {
+  return (req.headers['authorization'] || req.query['api_key'] || '') as string
 }
 
 routerEvents.post(
   '/:collectionName',
   async (req: Request, res: Response, next) => {
     try {
-      const projectId = req.params['projectId']
+      const projectId = req.params['projectId'] as string
       const accessKey = findAccessKey(req)
-      const collectionName = req.params['collectionName']
+      const collectionName = req.params['collectionName'] as string
       const data = req.body
 
-      const responsse = await recordEvent(
+      const response = await recordEvent(
         {
           projectId,
           collectionName,
@@ -31,7 +31,7 @@ routerEvents.post(
         accessKey
       )
 
-      return res.status(201).json(responsse)
+      return res.status(201).json(response)
     } catch (err) {
       return next(err)
     }
@@ -42,11 +42,11 @@ routerEvents.get(
   '/:collectionName',
   async (req: Request, res: Response, next) => {
     try {
-      const projectId = req.params['projectId']
+      const projectId = req.params['projectId'] as string
       const accessKey = findAccessKey(req)
-      const collectionName = req.params['collectionName']
-      const redirect = req.query['redirect']
-      const dataBase64 = req.query['data']
+      const collectionName = req.params['collectionName'] as string
+      const redirect = req.query['redirect'] as string | undefined
+      const dataBase64 = req.query['data'] as string | undefined
 
       let data: any = {}
       if (dataBase64) {
@@ -61,7 +61,7 @@ routerEvents.get(
         }
       }
 
-      const responsse = await recordEvent(
+      const response = await recordEvent(
         {
           projectId,
           collectionName,
@@ -76,7 +76,7 @@ routerEvents.get(
         return res.redirect(302, redirect)
       }
 
-      return res.status(201).json(responsse)
+      return res.status(201).json(response)
     } catch (err) {
       return next(err)
     }

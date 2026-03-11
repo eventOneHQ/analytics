@@ -1,6 +1,6 @@
 import { debug as debugLog } from 'debug'
 import { config } from '../../config/config'
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 
 const debug = debugLog('analytics:error')
 
@@ -8,7 +8,7 @@ const debug = debugLog('analytics:error')
  * @category Middleware
  */
 export const errorMiddleware = (app: any) => {
-  app.use((err, req: Request, res: Response, next) => {
+  app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     let code = err.status || err.statusCode || 500
 
     const error = {
@@ -33,7 +33,7 @@ export const errorMiddleware = (app: any) => {
   })
 
   // catch not found
-  app.use((req: Request, res: Response, next) => {
+  app.use((req: Request, res: Response, next: NextFunction) => {
     return res.status(404).send({
       message: 'Resource not found.',
       error_code: 'NotFoundError'
