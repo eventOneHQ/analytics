@@ -1,4 +1,4 @@
-name: Docs
+name: Build
 
 on: [push]
 
@@ -7,22 +7,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v1
-      - name: Use Node.js 12.x
-        uses: actions/setup-node@v1
+      - uses: actions/checkout@v4
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
         with:
-          node-version: 12.x
-      - name: Typedoc & Redoc
+          node-version: 24.x
+          cache: 'npm'
+      - name: Install & Build
         run: |
           npm ci
-          npm run docs
+          npm run build
         env:
           CI: true
-      - name: Deploy
-        if: success()
-        uses: crazy-max/ghaction-github-pages@v1
-        with:
-          target_branch: gh-pages
-          build_dir: docs
-        env:
-          GITHUB_PAT: ${{ secrets.GITHUB_PAT }}
+          ROOT_KEY: ci-build-key

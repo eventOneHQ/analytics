@@ -1,6 +1,6 @@
 import { Event } from '../models/Event'
 import { canWrite } from './projects'
-import { ICollectionModel, Collection } from '../models/Collection'
+import { Collection } from '../models/Collection'
 import { flatten } from 'flat'
 import createError from 'http-errors'
 import { Types } from 'mongoose'
@@ -24,19 +24,14 @@ export interface IRecordEventParams {
 export const recordEvent = async (params: IRecordEventParams, accessKey: string) => {
   await canWrite(params.projectId, accessKey)
 
-  // find a collection
-  let collection: ICollectionModel | null = await Collection.findOne({
+  // find or create a collection
+  const collection = (await Collection.findOne({
+    name: params.collectionName,
+    projectId: params.projectId
+  })) ?? new Collection({
     name: params.collectionName,
     projectId: params.projectId
   })
-
-  // if there isn't an existing collection, create one
-  if (!collection) {
-    collection = new Collection({
-      name: params.collectionName,
-      projectId: params.projectId
-    })
-  }
 
   collection.eventCount += 1
 

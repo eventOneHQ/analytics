@@ -3,6 +3,7 @@ import CollectionPicker from './CollectionPicker'
 import FilterEditor from './FilterEditor'
 import { IQuery, IQueryFilter, AnalysisType, Interval } from '../types/query'
 import { useQuery } from '../hooks/useQuery'
+import { useCollections } from '../hooks/useCollections'
 
 const ANALYSIS_TYPES: AnalysisType[] = [
   'count', 'count_unique', 'sum', 'average', 'minimum', 'maximum',
@@ -33,6 +34,18 @@ export default function QueryBuilder({ projectId, readKey, onResult }: Props) {
   const [limit, setLimit] = useState('')
   const [filters, setFilters] = useState<IQueryFilter[]>([])
   const { runQuery, loading, error } = useQuery(projectId, readKey)
+  const { collections } = useCollections(projectId, readKey)
+
+  // Get known properties for the currently selected collection
+  const selectedCollection = collections.find(c => c.name === collection)
+  const knownProperties = selectedCollection ? Object.keys(selectedCollection.properties) : []
+
+  const handleCollectionChange = (name: string) => {
+    setCollection(name)
+    setFilters([])
+    setTargetProperty('')
+    setGroupBy('')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -65,7 +78,7 @@ export default function QueryBuilder({ projectId, readKey, onResult }: Props) {
           projectId={projectId}
           readKey={readKey}
           value={collection}
-          onChange={setCollection}
+          onChange={handleCollectionChange}
         />
 
         <div>
@@ -86,8 +99,14 @@ export default function QueryBuilder({ projectId, readKey, onResult }: Props) {
               value={targetProperty}
               onChange={e => setTargetProperty(e.target.value)}
               placeholder="e.g. revenue"
+              list={knownProperties.length > 0 ? 'target-properties-list' : undefined}
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
             />
+            {knownProperties.length > 0 && (
+              <datalist id="target-properties-list">
+                {knownProperties.map(p => <option key={p} value={p} />)}
+              </datalist>
+            )}
           </div>
         )}
 
@@ -121,8 +140,14 @@ export default function QueryBuilder({ projectId, readKey, onResult }: Props) {
             value={groupBy}
             onChange={e => setGroupBy(e.target.value)}
             placeholder="e.g. country"
+            list={knownProperties.length > 0 ? 'group-by-properties-list' : undefined}
             className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
           />
+          {knownProperties.length > 0 && (
+            <datalist id="group-by-properties-list">
+              {knownProperties.map(p => <option key={p} value={p} />)}
+            </datalist>
+          )}
         </div>
 
         <div>
@@ -136,7 +161,7 @@ export default function QueryBuilder({ projectId, readKey, onResult }: Props) {
           />
         </div>
 
-        <FilterEditor filters={filters} onChange={setFilters} />
+        <FilterEditor filters={filters} onChange={setFilters} knownProperties={knownProperties} />
 
         {error && (
           <div className="bg-red-900/30 border border-red-700 rounded-lg p-3 text-red-300 text-sm">

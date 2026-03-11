@@ -13,13 +13,29 @@ export default function App() {
   const [hasInterval, setHasInterval] = useState(false)
   const [hasGroupBy, setHasGroupBy] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  // Increment to force ProjectSelector to re-mount (re-fetch) after settings change
+  const [projectListKey, setProjectListKey] = useState(0)
+
+  const handleSettingsSaved = () => {
+    setSettingsOpen(false)
+    setSelectedProjectId('')
+    setSelectedProjectReadKey('')
+    setQueryResult(null)
+    setProjectListKey(k => (k + 1) % 2)
+  }
 
   return (
     <Layout onSettingsClick={() => setSettingsOpen(true)}>
-      {settingsOpen && <SettingsModal onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && (
+        <SettingsModal
+          onClose={() => setSettingsOpen(false)}
+          onSaved={handleSettingsSaved}
+        />
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-1 space-y-4">
           <ProjectSelector
+            key={projectListKey}
             onSelect={(id, readKey) => {
               setSelectedProjectId(id)
               setSelectedProjectReadKey(readKey)

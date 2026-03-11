@@ -7,9 +7,10 @@ const OPERATORS: FilterOperator[] = [
 interface Props {
   filters: IQueryFilter[]
   onChange: (filters: IQueryFilter[]) => void
+  knownProperties?: string[]
 }
 
-export default function FilterEditor({ filters, onChange }: Props) {
+export default function FilterEditor({ filters, onChange, knownProperties = [] }: Props) {
   const add = () => onChange([...filters, { property_name: '', operator: 'eq', property_value: '' }])
   const remove = (i: number) => onChange(filters.filter((_, idx) => idx !== i))
   const update = (i: number, field: keyof IQueryFilter, value: string) => {
@@ -18,8 +19,15 @@ export default function FilterEditor({ filters, onChange }: Props) {
     onChange(next)
   }
 
+  const listId = 'filter-properties-list'
+
   return (
     <div>
+      {knownProperties.length > 0 && (
+        <datalist id={listId}>
+          {knownProperties.map(p => <option key={p} value={p} />)}
+        </datalist>
+      )}
       <div className="flex items-center justify-between mb-2">
         <label className="text-sm text-gray-400">Filters</label>
         <button
@@ -37,6 +45,7 @@ export default function FilterEditor({ filters, onChange }: Props) {
               value={f.property_name}
               onChange={e => update(i, 'property_name', e.target.value)}
               placeholder="property"
+              list={knownProperties.length > 0 ? listId : undefined}
               className="flex-1 bg-gray-800 border border-gray-600 rounded-md px-2 py-1.5 text-white text-xs focus:outline-none focus:border-indigo-500"
             />
             <select

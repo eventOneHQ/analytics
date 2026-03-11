@@ -2,14 +2,15 @@ import { useState } from 'react'
 
 interface Props {
   onClose: () => void
+  onSaved: () => void
 }
 
-export default function SettingsModal({ onClose }: Props) {
+export default function SettingsModal({ onClose, onSaved }: Props) {
   const [rootKey, setRootKey] = useState(localStorage.getItem('rootKey') || '')
 
   const handleSave = () => {
     localStorage.setItem('rootKey', rootKey)
-    onClose()
+    onSaved()
   }
 
   return (
@@ -26,6 +27,7 @@ export default function SettingsModal({ onClose }: Props) {
               className="w-full bg-gray-800 border border-gray-600 rounded-lg px-3 py-2 text-white text-sm focus:outline-none focus:border-indigo-500"
               placeholder="your-root-key"
             />
+            <p className="text-xs text-gray-500 mt-1">Used to load projects from the API.</p>
           </div>
         </div>
         <div className="flex justify-end gap-3 mt-6">
